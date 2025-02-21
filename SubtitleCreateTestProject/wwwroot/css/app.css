@@ -1,7 +1,13 @@
 ﻿/*noinspection CssInvalidAtRule*/
 @unocss;
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/*MSwitch style*/
+.m-messages{
+    @apply min-h-0px;
 }
 
 h1:focus {

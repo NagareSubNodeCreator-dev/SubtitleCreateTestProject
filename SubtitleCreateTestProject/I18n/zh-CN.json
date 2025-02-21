@@ -1,0 +1,9 @@
+{
+  "RouterMenu":{
+    "/":"首页",
+    "/counter":"记数器"
+  },
+  "AppBar":{
+    
+  }
+}

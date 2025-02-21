@@ -1,0 +1,9 @@
+{
+  "RouterMenu":{
+    "/":"Home",
+    "/counter":"Counter"
+  },
+  "AppBar":{
+    
+  }
+}

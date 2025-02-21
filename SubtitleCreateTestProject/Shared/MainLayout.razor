@@ -1,50 +1,58 @@
-﻿@inherits LayoutComponentBase
+﻿@using System.Globalization
+@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
 @inject MasaBlazor MasaBlazor
+@inject I18n I18N
 
 <MApp Id="app" Class="*:font-sans w-full h-screen overflow-hidden transition-all">
-    <MNavigationDrawer App Permanent Width="300" Floating
-                       Class="border-r border-solid border-gray-200 [&:has(.theme--dark)]:border-gray-700 [&:has(.theme--dark)]:bg-[--m-theme-dark-surface] bg-[--m-theme-surface] p-4 transition-all">
-        <div class="text-xl text-center font-bold py-4">@NavTitle</div>
-        <MList Nav Routable>
-            @foreach (var item in _routePathDefinitions)
-            {
-                <MListItem Href="@item.Path" ActiveClass="primary--text" Exact>
-                    @if (!string.IsNullOrEmpty(item.Icon))
-                    {
-                        <MIcon Class="text-xl mr-2">@item.Icon</MIcon>
-                    }
-                    <MListItemContent>
-                        <MListItemTitle>@item.Name</MListItemTitle>
-                    </MListItemContent>
-                </MListItem>
-            }
-        </MList>
-    </MNavigationDrawer>
-
-    <div class="flex flex-col">
-        <MAppBar App Elevation="0"
-                 Class="border-b border-solid bg-[--m-theme-surface] border-gray-200 [&:has(.theme--dark)]:border-gray-700 [&:has(.theme--dark)]:bg-[--m-theme-dark-surface] [&:not(.app--sized)]:left-[300px!important] transition-all">
-            <div class="flex!">
-                @if (!string.IsNullOrEmpty(_barIcon))
+    <CascadingValue Value="@I18N.Culture.ToString()" Name="Culture">
+        <MNavigationDrawer App Permanent Width="300" Floating
+                           Class="border-r border-solid border-gray-200 [&:has(.theme--dark)]:border-gray-700 [&:has(.theme--dark)]:bg-[--m-theme-dark-surface] bg-[--m-theme-surface] p-4 transition-all">
+            <div class="text-xl text-center font-bold py-4">@NavTitle</div>
+            <MList Nav Routable>
+                @foreach (var item in _routePathDefinitions)
                 {
-                    <MIcon Class="text-2xl mr-2 font-bold">@_barIcon</MIcon>
+                    <MListItem Href="@item.Path" ActiveClass="primary--text" Exact>
+                        @if (!string.IsNullOrEmpty(item.Icon))
+                        {
+                            <MIcon Class="text-xl mr-2">@item.Icon</MIcon>
+                        }
+                        <MListItemContent>
+                            <MListItemTitle>@item.Name</MListItemTitle>
+                        </MListItemContent>
+                    </MListItem>
                 }
-                <MToolbarTitle>@_barTitle</MToolbarTitle>
-            </div>
-            <MSpacer></MSpacer>
-            <MSwitch Value="_isDarkTheme" TValue="bool" Inset Class="[&_div.m-messages]:min-h-0px" Label="切换主题"
-                     ValueChanged="IsDarkChanged"
-                     LeftIcon="mdi-white-balance-sunny" RightIcon="mdi-weather-night"></MSwitch>
+            </MList>
+        </MNavigationDrawer>
 
-        </MAppBar>
+        <div class="flex flex-col">
+            <MAppBar App Elevation="0"
+                     Class="border-b border-solid bg-[--m-theme-surface] border-gray-200 [&:has(.theme--dark)]:border-gray-700 [&:has(.theme--dark)]:bg-[--m-theme-dark-surface] [&:not(.app--sized)]:left-[300px!important] transition-all">
+                <div class="flex!">
+                    @if (!string.IsNullOrEmpty(_barIcon))
+                    {
+                        <MIcon Class="text-2xl mr-2 font-bold">@_barIcon</MIcon>
+                    }
+                    <MToolbarTitle>@_barTitle</MToolbarTitle>
+                </div>
+                <MSpacer></MSpacer>
+                <MSwitch Value="_isChineseLanguage" TValue="bool" Inset Class="mr-2"
+                         RightText="中" LeftText="En"
+                         ValueChanged="IsLanguageChanged"></MSwitch>
+                <MSwitch Value="_isDarkTheme" TValue="bool" Inset
+                         ValueChanged="IsDarkChanged"
+                         LeftIcon="mdi-white-balance-sunny" RightIcon="mdi-weather-night"></MSwitch>
 
-        <MMain Class="[&:not(.app--sized)]:pl-[300px!important] h-[calc(100vh-64px)]">
-            <MErrorHandler>
-                @Body
-            </MErrorHandler>
-        </MMain>
-    </div>
+
+            </MAppBar>
+
+            <MMain Class="[&:not(.app--sized)]:pl-[300px!important] h-[calc(100vh-64px)]">
+                <MErrorHandler>
+                    @Body
+                </MErrorHandler>
+            </MMain>
+        </div>
+    </CascadingValue>
 </MApp>
 
 @code {
@@ -52,23 +60,30 @@
     private class RouteItem
     {
         public required string Path { get; init; }
-        public required string Name { get; init; }
+        public required string Name { get; set; }
         public string? Icon { get; init; }
     }
 
+    [CascadingParameter(Name = "Culture")] public string? Culture { get; set; }
     private const string? NavTitle = "NagareSubtitle Test";
     private string? _barIcon, _barTitle;
     private bool _isDarkTheme;
+    private bool _isChineseLanguage;
 
     private readonly List<RouteItem> _routePathDefinitions =
     [
-        new() { Path = "/", Name = "首页", Icon = "mdi-home" },
-        new() { Path = "/counter", Name = "计数器", Icon = "mdi-plus" }
+        new() { Path = "/", Name = "", Icon = "mdi-home" },
+        new() { Path = "/counter", Name = "", Icon = "mdi-plus" }
     ];
 
     protected override void OnInitialized()
     {
-        UpdateBarInfo();
+        if (I18N.Culture.Name == "zh-CN")
+        {
+            _isChineseLanguage = true;
+        }
+        
+        UpdateRouteNameFromI18N();
         NavigationManager.LocationChanged += HandleLocationChanged;
     }
 
@@ -87,10 +102,36 @@
         StateHasChanged();
     }
 
+    private void UpdateRouteNameFromI18N()
+    {
+        foreach (var item in _routePathDefinitions)
+        {
+            item.Name = I18N.T("RouterMenu." + item.Path);
+        }
+
+        UpdateBarInfo();
+    }
+
     private void IsDarkChanged(bool isDark)
     {
         _isDarkTheme = isDark;
         MasaBlazor.ToggleTheme();
+    }
+
+    private void IsLanguageChanged()
+    {
+        if (_isChineseLanguage)
+        {
+            I18N.SetCulture(new CultureInfo("en-US"));
+            _isChineseLanguage = false;
+        }
+        else
+        {
+            I18N.SetCulture(new CultureInfo("zh-CN"));
+            _isChineseLanguage = true;
+        }
+
+        UpdateRouteNameFromI18N();
     }
 
 }
