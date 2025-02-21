@@ -1,8 +1,10 @@
 ﻿@inherits LayoutComponentBase
 @inject NavigationManager NavigationManager
+@inject MasaBlazor MasaBlazor
 
-<MApp Id="app" Class="*:font-sans w-full h-screen overflow-hidden">
-    <MNavigationDrawer App Permanent Width="300" Floating Class="border-r border-solid border-gray-200 p-4">
+<MApp Id="app" Class="*:font-sans w-full h-screen overflow-hidden transition-all">
+    <MNavigationDrawer App Permanent Width="300" Floating
+                       Class="border-r border-solid border-gray-200 [&:has(.theme--dark)]:border-gray-700 [&:has(.theme--dark)]:bg-[--m-theme-dark-surface] bg-[--m-theme-surface] p-4 transition-all">
         <div class="text-xl text-center font-bold py-4">@NavTitle</div>
         <MList Nav Routable>
             @foreach (var item in _routePathDefinitions)
@@ -22,12 +24,19 @@
 
     <div class="flex flex-col">
         <MAppBar App Elevation="0"
-                 Class="bg-white border-b border-solid border-gray-200 [&:not(.app--sized)]:left-[300px!important]">
-            @if (!string.IsNullOrEmpty(_barIcon))
-            {
-                <MIcon Class="text-2xl mr-2 font-bold text-gray-800">@_barIcon</MIcon>
-            }
-            <MToolbarTitle>@_barTitle</MToolbarTitle>
+                 Class="border-b border-solid bg-[--m-theme-surface] border-gray-200 [&:has(.theme--dark)]:border-gray-700 [&:has(.theme--dark)]:bg-[--m-theme-dark-surface] [&:not(.app--sized)]:left-[300px!important] transition-all">
+            <div class="flex!">
+                @if (!string.IsNullOrEmpty(_barIcon))
+                {
+                    <MIcon Class="text-2xl mr-2 font-bold">@_barIcon</MIcon>
+                }
+                <MToolbarTitle>@_barTitle</MToolbarTitle>
+            </div>
+            <MSpacer></MSpacer>
+            <MSwitch Value="_isDarkTheme" TValue="bool" Inset Class="[&_div.m-messages]:min-h-0px" Label="切换主题"
+                     ValueChanged="IsDarkChanged"
+                     LeftIcon="mdi-white-balance-sunny" RightIcon="mdi-weather-night"></MSwitch>
+
         </MAppBar>
 
         <MMain Class="[&:not(.app--sized)]:pl-[300px!important] h-[calc(100vh-64px)]">
@@ -49,6 +58,7 @@
 
     private const string? NavTitle = "NagareSubtitle Test";
     private string? _barIcon, _barTitle;
+    private bool _isDarkTheme;
 
     private readonly List<RouteItem> _routePathDefinitions =
     [
@@ -75,6 +85,12 @@
         _barIcon = routeObj.Icon;
         _barTitle = routeObj.Name;
         StateHasChanged();
+    }
+
+    private void IsDarkChanged(bool isDark)
+    {
+        _isDarkTheme = isDark;
+        MasaBlazor.ToggleTheme();
     }
 
 }
