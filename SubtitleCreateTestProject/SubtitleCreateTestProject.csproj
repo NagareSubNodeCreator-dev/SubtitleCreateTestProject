@@ -18,6 +18,23 @@
         </Content>
     </ItemGroup>
 
+    <ItemGroup>
+      <None Update="uno.config.ts">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <None Update="postcss.config.mjs">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <Content Remove="package-lock.json" />
+      <None Include="package-lock.json">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+      <Content Remove="package.json" />
+      <None Include="package.json">
+        <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+      </None>
+    </ItemGroup>
+
     <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
         <Exec Command="npm run buildcss"/>
     </Target>
