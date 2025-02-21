@@ -1,4 +1,6 @@
-﻿html, body {
+﻿/*noinspection CssInvalidAtRule*/
+@unocss;
+html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
