@@ -1,8 +1,9 @@
-﻿using SubtitleCreateTestProject;
-using Microsoft.Extensions.DependencyInjection;
+﻿using Microsoft.Extensions.DependencyInjection;
 using Photino.Blazor;
 
-internal class Program
+namespace SubtitleCreateTestProject;
+
+internal static class Program
 {
     [STAThread]
     private static void Main(string[] args)
@@ -23,7 +24,7 @@ internal class Program
             .SetFileSystemAccessEnabled(true)
             .SetTitle("Nagare Subtitle Blazor test");
 
-        AppDomain.CurrentDomain.UnhandledException += (sender, error) => { };
+        // AppDomain.CurrentDomain.UnhandledException += (sender, error) => { };
 
         app.Run();
     }
